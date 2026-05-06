@@ -6,6 +6,24 @@ return {
 		config = true,
 	},
 
+	-- LeetCode inside Neovim
+	{
+		"kawre/leetcode.nvim",
+		lazy = (function()
+			local leet_arg = "leetcode.nvim"
+			return leet_arg ~= vim.fn.argv(0, -1)
+		end)(),
+		cmd = "Leet",
+		dependencies = {
+			"nvim-lua/plenary.nvim",
+			"MunifTanjim/nui.nvim",
+		},
+		opts = {
+			arg = "leetcode.nvim",
+			-- picker = { provider = "telescope" }, -- optional: force telescope
+		},
+	},
+
 	-- Go forward/backward with square brackets
 	{
 		"nvim-mini/mini.bracketed",
