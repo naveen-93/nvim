@@ -165,7 +165,7 @@ gw            → Becomes: world hello
 
 | Keys | Action | Example |
 |------|--------|---------|
-| `<leader>w` | Select word | Select word under cursor |
+| `<leader>vw` | Select word | Select word under cursor |
 | `cw` | Change word | Delete word and enter insert mode |
 | `dw` | Delete word | Remove word under cursor |
 | `vl` | Select to end of line | Select from cursor to line end |
@@ -232,7 +232,7 @@ Word: "Hello"
 | `<leader>rn` | Rename symbol | Rename all instances of symbol |
 | `<leader>ca` | Code action | Show available fixes/actions |
 | `<leader>lf` | Format file | Auto-format entire file |
-| `<leader>sh` | Signature help | Show function signature info |
+| `<leader>ls` | Signature help | Show function signature info |
 
 **Example workflow:**
 ```
@@ -253,6 +253,8 @@ gd              → Jump to function definition
 | `<leader>bp` | Previous buffer | Switch to previous open file |
 | `<leader>bd` | Delete buffer | Close current file |
 | `<leader>bl` | New buffer | Create new empty buffer |
+| `<leader>bh` | Close hidden buffers | Close buffers not shown in a window |
+| `<leader>bu` | Close nameless buffers | Close buffers without a file name |
 
 ---
 

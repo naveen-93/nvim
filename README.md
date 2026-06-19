@@ -176,11 +176,12 @@ Navigate and press `i` to install servers. Or use:
 |---------|--------|
 | `<leader>tn` | New tab |
 | `<leader>tc` | Close tab |
+| `<leader>to` | Close other tabs |
 | `<leader>bn` | Next buffer |
 | `<leader>bp` | Previous buffer |
 | `<leader>bd` | Delete buffer |
-| `<leader>to` | Close hidden buffers |
-| `<leader>tu` | Close unnamed buffers |
+| `<leader>bh` | Close hidden buffers |
+| `<leader>bu` | Close nameless buffers |
 
 ### 🖥️ Terminal
 
@@ -464,6 +465,5 @@ Based on [LazyVim](https://www.lazyvim.org/). Check individual plugins for their
 **Status:** ✅ Fully Functional
 
 For issues or suggestions: [GitHub](https://github.com/naveen-93/nvim)
-
 
 

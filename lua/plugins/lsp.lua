@@ -11,6 +11,7 @@ return {
 				"shfmt",
 				"tailwindcss-language-server",
 				"typescript-language-server",
+				"vtsls",
 				"css-lsp",
 			})
 		end,
@@ -29,7 +30,7 @@ return {
 						return require("lspconfig.util").root_pattern(".git")(...)
 					end,
 				},
-				tsserver = {
+				vtsls = {
 					root_dir = function(...)
 						return require("lspconfig.util").root_pattern(".git")(...)
 					end,
@@ -37,24 +38,28 @@ return {
 					settings = {
 						typescript = {
 							inlayHints = {
-								includeInlayParameterNameHints = "literal",
-								includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-								includeInlayFunctionParameterTypeHints = true,
-								includeInlayVariableTypeHints = false,
-								includeInlayPropertyDeclarationTypeHints = true,
-								includeInlayFunctionLikeReturnTypeHints = true,
-								includeInlayEnumMemberValueHints = true,
+								enumMemberValues = { enabled = true },
+								functionLikeReturnTypes = { enabled = true },
+								parameterNames = {
+									enabled = "literals",
+									suppressWhenArgumentMatchesName = true,
+								},
+								parameterTypes = { enabled = true },
+								propertyDeclarationTypes = { enabled = true },
+								variableTypes = { enabled = false },
 							},
 						},
 						javascript = {
 							inlayHints = {
-								includeInlayParameterNameHints = "all",
-								includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-								includeInlayFunctionParameterTypeHints = true,
-								includeInlayVariableTypeHints = true,
-								includeInlayPropertyDeclarationTypeHints = true,
-								includeInlayFunctionLikeReturnTypeHints = true,
-								includeInlayEnumMemberValueHints = true,
+								enumMemberValues = { enabled = true },
+								functionLikeReturnTypes = { enabled = true },
+								parameterNames = {
+									enabled = "all",
+									suppressWhenArgumentMatchesName = true,
+								},
+								parameterTypes = { enabled = true },
+								propertyDeclarationTypes = { enabled = true },
+								variableTypes = { enabled = true },
 							},
 						},
 					},

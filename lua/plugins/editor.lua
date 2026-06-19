@@ -292,22 +292,18 @@ return {
 		event = "VeryLazy",
 		keys = {
 			{
-				"<leader>to",
+				"<leader>bh",
 				function()
 					require("close_buffers").delete({ type = "hidden" })
 				end,
 				desc = "Close Hidden Buffers",
 			},
 			{
-					"<leader>tu",
-				menu = {
-					winblend = vim.o.pumblend,
-				},
-			},
-			signature = {
-				window = {
-					winblend = vim.o.pumblend,
-				},
+				"<leader>bu",
+				function()
+					require("close_buffers").delete({ type = "nameless" })
+				end,
+				desc = "Close Nameless Buffers",
 			},
 		},
 	},

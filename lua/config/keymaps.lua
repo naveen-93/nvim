@@ -175,7 +175,7 @@ map("n", "gw", "dawP", "Swap word with next")
 -- ============================================================================
 
 -- Quick word selection/deletion
-map("n", "<leader>w", "viw", "Select word")
+map("n", "<leader>vw", "viw", "Select word")
 map("n", "cw", "ciw", "Change word")
 map("n", "dw", "diw", "Delete word")
 
@@ -242,7 +242,7 @@ map("n", "<leader>lf", function()
 end, "Format file")
 
 -- Quick signature help
-map("n", "<leader>sh", vim.lsp.buf.signature_help, "Signature help")
+map("n", "<leader>ls", vim.lsp.buf.signature_help, "Signature help")
 
 -- Buffers
 map("n", "<leader>bn", "<cmd>bnext<cr>", "Next buffer")
