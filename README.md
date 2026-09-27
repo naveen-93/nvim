@@ -57,20 +57,21 @@ That's it — `~/.config/nvim` is a normal git clone, so `git pull` inside it is
 update both this config and its pinned plugins.
 
 <details>
-<summary>Alternative: as a submodule of a larger dotfiles repo</summary>
+<summary>If your dotfiles repo also wants an nvim entry</summary>
 
-If you keep all your dotfiles in one repo, add this as a submodule instead of
-cloning it separately:
+This config used to be a submodule of a larger dotfiles repo. That does **not** work
+here, and it is worth knowing why before you try to recreate it.
 
-```sh
-git submodule add https://github.com/naveen-93/nvim.git ~/.config/nvim
-git -C ~/.config/nvim pull   # inside the submodule, never commit from the parent
-```
+With a submodule, the parent repo stores only a *commit hash* for the directory, not
+the files. So after you push a config change from this repo, a plain `git pull` in the
+parent updates the parent's commits but leaves the submodule sitting on its old hash —
+your change silently does not arrive. You would need `git submodule update --remote` on
+every machine, and the parent repo needs its own commit bumping the hash or nobody gets
+the change at all. Two commands where one will do, with a silent failure mode when you
+forget one of them.
 
-Submodules have a sharp edge: committing from the parent repo records a *commit hash*,
-not the files. If you edit config and push from the wrong directory, the parent repo
-silently keeps pointing at the old commit. A standalone clone has no such trap, which
-is why it's the default here.
+So keep it a standalone clone everywhere, and add `nvim/` to the parent repo's
+`.gitignore` so a stray `git add .` cannot quietly turn it back into a gitlink.
 
 </details>
 
@@ -344,8 +345,8 @@ rather than a surprise. To update plugins on purpose, use `:Lazy update` inside
 Neovim, then commit the changed lockfile back to this repo.
 
 Since `~/.config/nvim` is a clone of this repo, a `git pull` also picks up changes to
-the config itself. Commit your edits from inside `~/.config/nvim`, never from a parent
-dotfiles repo that tracks it as a submodule.
+the config itself. Commit your edits from inside `~/.config/nvim` — that directory is
+its own repository, so it is the only place a config commit can come from.
 
 ## Troubleshooting
 
