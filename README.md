@@ -1,469 +1,331 @@
-# 🚀 Neovim Configuration
+# Neovim Configuration
 
-A modern, fast, and highly customizable Neovim configuration based on [LazyVim](https://www.lazyvim.org/) with thoughtfully chosen plugins and optimized keybindings.
+A [LazyVim](https://github.com/LazyVim/LazyVim) setup with the
+[solarized-osaka](https://github.com/craftzdog/solarized-osaka.nvim) colorscheme.
 
-Built for maximum productivity with sensible defaults and lightning-fast startup times.
-
----
-
-## ✨ Features
-
-- **🚀 Blazing Fast** - Optimized lazy loading with caching (startup time < 100ms)
-- **🎨 Beautiful UI** - Solarized Osaka theme with smooth colors and modern components
-- **🔍 Powerful Search** - Telescope fuzzy finder for files, text, symbols, and more
-- **💻 Full LSP Support** - Automatic language server setup via Mason with intelligent completions
-- **📝 Advanced Syntax** - Treesitter for accurate highlighting and smart text objects
-- **⚡ Smart Editing** - Incremental rename, dial for smart incrementing, and more
-- **🖥️ Integrated Terminal** - Floating/split terminals with `jk` to exit
-- **🔧 Auto Formatting** - Prettier and Conform for consistent code style
-- **📊 Git Integration** - Gitsigns with blame, diffs, and staged hunks
-- **🎯 Optimized Keybinds** - Intuitive mappings for vim-like efficiency
-- **✅ Web Dev Ready** - TypeScript, React, Tailwind CSS, ESLint support
-- **🦀 Polyglot Support** - Rust, Go, Python, Lua, and 30+ languages pre-configured
+It is very close to a stock LazyVim install — the only real customisations are the
+colorscheme and a few Telescope keymaps. Everything else comes from LazyVim, so it is
+worth reading the [LazyVim docs](https://lazyvim.github.io) to see what you already have.
 
 ---
 
-## 📋 System Requirements
+## Requirements
 
-### macOS
+LazyVim's own health check looks for exactly these commands
+(`lua/lazyvim/health.lua:18`), so this table mirrors it:
 
-| Component | Version | Installation |
-|-----------|---------|--------------|
-| **Neovim** | v0.9.0+ | `brew install neovim` |
-| **Git** | Latest | Pre-installed |
-| **Zsh** | Latest | Pre-installed |
-| **Node.js** | v18+ | `brew install node` |
-| **Ripgrep** | Latest | `brew install ripgrep` |
-| **fd** | Latest | `brew install fd` |
+| Dependency | Notes |
+| --- | --- |
+| Neovim **>= 0.11.2** built with LuaJIT | Hard requirement |
+| `git` | Used by the plugin installer itself |
+| `rg` (ripgrep) | Search across files |
+| `fd` (or `fdfind`) | Faster file finding |
+| `fzf` | Optional fuzzy finding |
+| `curl` | Mason downloads language servers with it |
+| `lazygit` | Optional; see the note below — the binary alone does nothing |
+| C compiler (`cc`) | Compiles Tree-sitter parsers |
+| `node` | Only for JS/TS language servers |
+| `python3` | Only for Python language servers |
 
-### Optional: Ghostty Terminal (Recommended) ⭐
+On macOS:
 
-For the optimal Neovim experience, use [Ghostty](https://ghostty.org/):
-
-```bash
-brew install --cask ghostty
+```sh
+brew install neovim ripgrep fd fzf lazygit node python
 ```
 
-**Why Ghostty?**
-- 🚀 GPU-accelerated, smooth scrolling
-- 🎨 Perfect font and ligature rendering
-- 👀 Low-latency typing experience
-- 📺 True color (24-bit) and undercurl support
-- ⚡ Instant window creation
+Verify any time with `:checkhealth lazyvim`. You do not need all of these — a missing
+optional one is a warning, not a failure.
+
+> Upstream prerequisite list:
+> [lazyvim.github.io/installation](https://lazyvim.github.io/installation#prerequisites).
 
 ---
 
-## 🚀 Quick Start
+## Install
 
-### 1️⃣ Install Dependencies
+This repo *is* the config, so clone it straight into place:
 
-```bash
-# Install Neovim
-brew install neovim ripgrep fd node
+```sh
+# 1. Back up any existing config
+mv ~/.config/nvim ~/.config/nvim.backup 2>/dev/null
 
-# (Optional) Install Ghostty
-brew install --cask ghostty
-```
-
-### 2️⃣ Backup Existing Config
-
-```bash
-# Back up your current Neovim config (if you have one)
-mv ~/.config/nvim ~/.config/nvim.backup
-```
-
-### 3️⃣ Clone Configuration
-
-```bash
+# 2. Clone
 git clone https://github.com/naveen-93/nvim.git ~/.config/nvim
-cd ~/.config/nvim
 ```
 
-### 4️⃣ Launch Neovim
+That's it — `~/.config/nvim` is a normal git clone, so `git pull` inside it is how you
+update both this config and its pinned plugins.
 
-```bash
+<details>
+<summary>Alternative: as a submodule of a larger dotfiles repo</summary>
+
+If you keep all your dotfiles in one repo, add this as a submodule instead of
+cloning it separately:
+
+```sh
+git submodule add https://github.com/naveen-93/nvim.git ~/.config/nvim
+git -C ~/.config/nvim pull   # inside the submodule, never commit from the parent
+```
+
+Submodules have a sharp edge: committing from the parent repo records a *commit hash*,
+not the files. If you edit config and push from the wrong directory, the parent repo
+silently keeps pointing at the old commit. A standalone clone has no such trap, which
+is why it's the default here.
+
+</details>
+
+### First launch
+
+Just run it:
+
+```sh
 nvim
 ```
 
-**First Launch Automation:**
-- Installs lazy.nvim plugin manager
-- Downloads and installs all plugins (2-3 minutes)
-- Sets up language servers
-- Loads configurations
+On the very first start, and with no input needed from you, LazyVim will:
 
-✅ **That's it!** Your Neovim is ready.
+- clone all plugins (see `lazy-lock.json` for the exact pinned commits),
+- download Tree-sitter parsers for the languages it highlights,
+- install `stylua` and `shfmt` through Mason.
 
-### 5️⃣ Install Language Servers (Optional)
+Language servers install on demand the first time you open a file of that type. To
+install or inspect them yourself, use `<leader>cm` (Mason).
 
-```vim
-:Mason
-```
-
-Navigate and press `i` to install servers. Or use:
-
-```vim
-:MasonInstall typescript-language-server gopls rust-analyzer lua-language-server tailwindcss-language-server
-```
+The first launch takes a minute or two. Later starts are fast.
 
 ---
 
-## 📁 Project Structure
+## What is customised here
 
-```
-~/.config/nvim/
-├── init.lua                    # Entry point & initialization
-├── README.md                   # This file
-├── lazy-lock.json              # Plugin version locks
-│
-└── lua/
-    ├── config/
-    │   ├── options.lua         # Vim settings (tabs, indentation, UI)
-    │   ├── keymaps.lua         # All keybindings & terminal
-    │   ├── autocmds.lua        # Autocommands (paste, concealing)
-    │   └── lazy.lua            # Plugin manager bootstrap
-    │
-    ├── plugins/                # Plugin specs (lazy-loaded)
-    │   ├── coding.lua          # dial, inc-rename, copilot
-    │   ├── colorscheme.lua     # solarized-osaka theme
-    │   ├── editor.lua          # telescope, trouble, harpoon
-    │   ├── lsp.lua             # mason, lspconfig, servers
-    │   ├── treesitter.lua      # syntax, textobjects, context
-    │   └── ui.lua              # statusline, bufferline, dashboard
-    │
-    ├── craftzdog/              # Custom modules (optional)
-    │   ├── discipline.lua       # Cowboy mode for hjkl training
-    │   ├── hsl.lua             # Color conversion utilities
-    │   └── lsp.lua             # LSP helper functions
-    │
-    └── util/
-        └── debug.lua           # Debug utilities (dd function)
-```
+Almost nothing — the point of this section is so you know where to make changes.
 
----
+| File | What it does |
+| --- | --- |
+| `lua/config/lazy.lua` | Plugin manager setup, plus four Telescope keymaps at the bottom |
+| `lua/plugins/colorscheme.lua` | Loads solarized-osaka |
+| `lua/plugins/telescope.lua` | Ensures Telescope + plenary are present |
+| `lua/config/keymaps.lua` | **Empty** — add extra keymaps here |
+| `lua/config/autocmds.lua` | **Empty** — add autocmds here |
+| `lua/plugins/example.lua` | **Dead file.** Line 3 is `if true then return {} end`, so it always returns nothing. Only useful as a reference. |
 
-## ⌨️ Essential Keybindings
+### The Telescope keymaps
 
-**Leader Key:** `<Space>`
+Appended to the bottom of `lua/config/lazy.lua`:
 
-### 🔍 Finding Things
+| Key | Action |
+| --- | --- |
+| `<C-p>` | Find files (Telescope) |
+| `<leader>fg` | Live grep |
+| `<leader>fb` | Buffers |
+| `<leader>fh` | Help tags |
 
-| Binding | Action |
-|---------|--------|
-| `;f` | Find files in project |
-| `;r` | Live grep (search text) |
-| `\\` | Search open buffers |
-| `;t` | Search help tags |
-| `;e` | Show diagnostics |
-| `;s` | Treesitter symbols |
-| `sf` | File browser (current dir) |
+These shadow LazyVim's stock mappings, which normally open
+[snacks.nvim](https://github.com/folke/snacks.nvim). Both plugins stay installed, so
+nothing is lost — the snacks pickers for the same three actions live on different keys:
 
-### 🪟 Window Management
+| Action | Telescope (this config) | snacks (still available) |
+| --- | --- | --- |
+| Find files | `<C-p>` | `<leader>ff` |
+| Grep | `<leader>fg` | `<leader>sg` |
+| Buffers | `<leader>fb` | `<leader>fB` |
+| Help | `<leader>fh` | `<leader>sh` |
 
-| Binding | Action |
-|---------|--------|
-| `<leader>sv` | Vertical split |
-| `<leader>sh` | Horizontal split |
-| `<C-h/j/k/l>` | Focus left/down/up/right |
-| `<leader>.` | Widen (+3 cols) |
-| `<leader>,` | Narrow (-3 cols) |
-| `<leader>]` | Taller (+3 rows) |
-| `<leader>[` | Shorter (-3 rows) |
-| `<leader>=` | Equalize sizes |
-
-### 📑 Tabs & Buffers
-
-| Binding | Action |
-|---------|--------|
-| `<leader>tn` | New tab |
-| `<leader>tc` | Close tab |
-| `<leader>to` | Close other tabs |
-| `<leader>bn` | Next buffer |
-| `<leader>bp` | Previous buffer |
-| `<leader>bd` | Delete buffer |
-| `<leader>bh` | Close hidden buffers |
-| `<leader>bu` | Close nameless buffers |
-
-### 🖥️ Terminal
-
-| Binding | Action |
-|---------|--------|
-| `<C-t>` | Toggle floating terminal |
-| `<leader>tv` | Toggle vertical split terminal |
-| `<leader>th` | Toggle horizontal split terminal |
-| `jk` | Exit terminal (inside terminal) |
-
-### ✏️ Editing
-
-| Binding | Action |
-|---------|--------|
-| `jk` | Exit insert mode |
-| `<leader>w` | Save file |
-| `<leader>q` | Quit window |
-| `<A-j/k>` | Move line down/up |
-| `J` | Join lines (cursor stays) |
-| `<leader>d` | Delete without clipboard |
-| `<leader>p` | Paste from system clipboard |
-| `<leader>y` | Yank to system clipboard |
-| `<leader>aa` | Select all |
-| `+/-` | Increment/decrement |
-
-### 🧠 Code Navigation & LSP
-
-| Binding | Action |
-|---------|--------|
-| `gd` | Go to definition |
-| `gD` | Go to declaration |
-| `gi` | Go to implementation |
-| `gr` | List references |
-| `K` | Hover documentation |
-| `<leader>rn` | Rename symbol |
-| `<leader>ca` | Code action |
-| `<leader>lf` | Format file |
-| `[d / ]d` | Previous/next diagnostic |
-| `<leader>de` | Show line diagnostics |
-
-### 🔎 Search & View
-
-| Binding | Action |
-|---------|--------|
-| `<Esc>` | Clear search highlight |
-| `<leader>rw` | Replace word under cursor |
-| `n/N` | Next/prev search (centered) |
-| `<leader>xx` | Toggle all diagnostics |
-| `<leader>z` | Zen mode (distraction-free) |
-
-### 🛠️ Utility
-
-| Binding | Action |
-|---------|--------|
-| `<leader><leader>` | Reload config file |
-| `<leader>X` | Make file executable |
+Prefer snacks' pickers? Delete lines 55-58 of `lua/config/lazy.lua` and everything
+reverts to the LazyVim default.
 
 ---
 
-## 🔌 Plugin Ecosystem
+## Changing the colorscheme
 
-### Core Navigation
-- **telescope.nvim** - Fuzzy finder (files, grep, symbols)
-- **harpoon** - Mark and quickly jump to files
-- **trouble.nvim** - Better diagnostic display
-- **nvim-spectre** - Project-wide find & replace
-
-### Code Intelligence
-- **nvim-lspconfig** - LSP client setup
-- **mason.nvim** - Language server installer
-- **blink.cmp** - Modern completion engine
-- **nvim-treesitter** - Syntax highlighting & text objects
-- **conform.nvim** - Code formatting
-- **nvim-lint** - Code linting
-
-### Code Understanding
-- **nvim-treesitter-context** - Show scope/context info
-- **rainbow-delimiters.nvim** - Colorize brackets
-- **nvim-ts-autotag** - Auto-close HTML tags
-- **inc-rename.nvim** - Live rename previews
-
-### User Interface
-- **noice.nvim** - Beautiful command line
-- **lualine.nvim** - Statusline with git info
-- **bufferline.nvim** - Tab bar
-- **incline.nvim** - Floating filename
-- **snacks.nvim** - Dashboard & utilities
-- **zen-mode.nvim** - Distraction-free mode
-- **indent-blankline.nvim** - Indent guides
-
-### Git & Version Control
-- **gitsigns.nvim** - Git signs, blame, diffs
-- **git.nvim** - Git commands & browsing
-
-### Smart Tools
-- **dial.nvim** - Smart increment/decrement
-- **copilot.lua** - GitHub Copilot integration
-- **crates.nvim** - Rust crate management
-
-### Appearance
-- **solarized-osaka.nvim** - Beautiful warm theme
-
----
-
-## 🎯 Quick Tips
-
-### Use Harpoon for Fast Navigation
-```vim
-<leader>ha         " Mark current file
-<leader>hh         " Show marked files menu
-<leader>h1-4       " Jump to marks 1-4
-```
-
-### Project-wide Find & Replace
-```vim
-<leader>sr         " Open Spectre
-<leader>sw         " Search word under cursor
-```
-
-### View All Diagnostics
-```vim
-<leader>xx         " Trouble: show all diagnostics
-<leader>xw         " Trouble: buffer diagnostics
-```
-
-### Distraction-Free Coding
-```vim
-<leader>z          " Enter Zen Mode
-```
-
-### Search Across Project
-```vim
-;r                 " Live grep (respects .gitignore)
-<leader>rw         " Replace word
-```
-
----
-
-## ⚙️ Customization
-
-### Change Keybindings
-
-Edit `lua/config/keymaps.lua`:
+The colorscheme lives in `lua/plugins/colorscheme.lua`:
 
 ```lua
--- Example: Add custom mapping
-map("n", "<leader>co", "<cmd>Copilot chat<cr>", "Copilot chat")
-```
-
-### Add Language Servers
-
-In `lua/plugins/lsp.lua`, add to `ensure_installed`:
-
-```lua
-vim.list_extend(opts.ensure_installed, {
-    "rust-analyzer",
-    "gopls",
-    "python-lsp-server",
-})
-```
-
-### Change Theme
-
-In `lua/plugins/colorscheme.lua`:
-
-```lua
-{
-    "folke/tokyonight.nvim",  -- or any other theme
+return {
+  {
+    "craftzdog/solarized-osaka.nvim",
     lazy = true,
-    priority = 1000,
+    opts = {},
+  },
+
+  -- load the colorscheme
+  { "LazyVim/LazyVim", opts = { colorscheme = "solarized-osaka" } },
 }
 ```
 
-### Disable Plugins
+**A trap worth knowing:** the file must be `lua/plugins/colorscheme.lua`.
+Creating `lua/config/colorscheme.lua` does *nothing* — LazyVim only auto-loads
+`options.lua`, `keymaps.lua` and `autocmds.lua` from `lua/config/`. A lot of guides
+online get this wrong, and the symptom is a silent no-op: the file sits there, the
+theme never changes, and nothing errors.
 
-In `lua/config/lazy.lua`, comment out imports:
+The theme also ships a matching lualine theme. You do not need to wire it up —
+LazyVim's default `options.theme = "auto"` makes lualine look for a theme named after
+the active colorscheme and finds `solarized-osaka` automatically.
+
+It also ships `-light` and `-vivid` variants:
+
+```sh
+nvim --headless "+colorscheme solarized-osaka-light" +qa
+```
+
+Add a `lua/plugins/colorscheme.lua` entry if you want one permanently. To browse the
+available colorschemes without committing to one, use `<leader>uC`.
+
+---
+
+## Everyday commands
+
+Every mapping below was read out of the running config with
+`nvim_get_keymap("n")`, so it is verified rather than copied from upstream docs.
+
+### Files, search, buffers
+
+| Key | Action |
+| --- | --- |
+| `<C-p>` | Find files (Telescope) |
+| `<leader>ff` | Find files in project root |
+| `<leader>fF` | Find files in current directory |
+| `<leader>fe` / `<leader>fE` | File explorer, root / cwd |
+| `<leader>fg` / `<leader>sg` | Grep in project (Telescope / snacks) |
+| `<leader>sG` | Grep in current directory |
+| `<leader>sW` | Search visual selection or word |
+| `<leader>sB` | Grep only open buffers |
+| `<leader>fr` / `<leader>fR` | Recent files, root / cwd |
+| `<leader>fc` | Find config file |
+| `<leader>fp` | Projects |
+| `<leader>fb` / `<leader>sb` | Buffers (Telescope / snacks) |
+| `<leader>fB` | All buffers |
+| `<leader>sh` | Help pages |
+| `<leader>sH` | Current file's highlights |
+| `<leader>sm` | Marks |
+| `<leader>sj` | Jumps |
+| `<leader>s/` | Search history |
+| `<leader>sc` | Command history |
+| `<leader>s"` | Registers |
+
+### Diagnostics, LSP, quickfix
+
+| Key | Action |
+| --- | --- |
+| `<leader>sd` | Workspace diagnostics |
+| `<leader>sD` | Diagnostics for this buffer |
+| `<leader>sq` | Quickfix list |
+| `<leader>sl` | Location list |
+| `<leader>xx` | All diagnostics (Trouble) |
+| `<leader>xQ` | Quickfix list (Trouble) |
+| `<leader>xX` | This buffer's diagnostics (Trouble) |
+| `<leader>xL` | Location list (Trouble) |
+| `[d` / `]d` | Previous / next diagnostic |
+| `<leader>cm` | Mason — install and manage language servers |
+
+`gd` (go to definition), `gr` (rename) and friends are not global mappings. They are
+registered by the language server into each buffer, so they only work in files where an
+LSP has attached.
+
+### Git
+
+| Key | Action |
+| --- | --- |
+| `<leader>gs` | Git status |
+| `<leader>gd` | Git diff, current hunk |
+| `<leader>gD` | Git diff against `origin` |
+| `<leader>gS` | Git stash |
+| `<leader>gp` / `<leader>gP` | GitHub pull requests, open / all |
+| `<leader>gi` / `<leader>gI` | GitHub issues, open / all |
+
+### Other
+
+| Key | Action |
+| --- | --- |
+| `<leader>sk` | Search keymaps |
+| `<leader>sa` | Autocmds |
+| `<leader>st` / `<leader>sT` | TODO / Fixme comments |
+| `<leader>si` | Icon picker |
+| `<leader>sn` | Noice messages |
+| `<leader>qs` | Restore session |
+| `<leader>ql` | Restore last session |
+| `<leader>qS` | Pick a session to restore |
+| `<leader>qd` | Do not save the current session |
+| `<leader><leader>` | Find files (root dir) — LazyVim maps double-tap leader here, not to which-key |
+
+Two things that are *not* mapped, despite being common in other setups:
+
+- **`l` / `<leader>l` for the plugin manager.** LazyVim does not bind it. Run `:Lazy`
+  directly, or press `l` on the dashboard.
+- **`<leader>L` to toggle lualine.** Needs `nvim-lualine/lualine-ls`, which is not
+  installed. `:LualineToggle` is unavailable for the same reason.
+
+### Lazygit is not wired up
+
+`lazygit` is in LazyVim's core, but only as an `optional` spec: the plugin is skipped
+entirely because the `lazygit.nvim` entry point is not in `lazy-lock.json`. Installing
+the binary alone does nothing. To get `<leader>gg`, add this to any file in
+`lua/plugins/`:
 
 ```lua
--- { import = "lazyvim.plugins.extras.lang.rust" },
+{ "folke/lazygit.nvim", optional = true, version = false, cmd = "lazygit" },
 ```
 
-### Enable Cowboy Mode
+then run `:Lazy sync`. Git status and diffs already work without it, via `<leader>gs`
+and `<leader>gd`.
 
-In `init.lua`, uncomment:
-
-```lua
-require("craftzdog.discipline").cowboy()
-```
-
-This warns when you repeatedly press hjkl to encourage better vim motions.
+`<leader>` is the space bar.
 
 ---
 
-## 🔧 Troubleshooting
+## Upgrading plugins
 
-### Plugins not loading?
-
-```bash
-rm -rf ~/.local/share/nvim/lazy && nvim
+```sh
+cd ~/.config/nvim
+git pull
 ```
 
-### Language server not working?
+`lazy-lock.json` pins every plugin to a tested commit, so a pull is reproducible
+rather than a surprise. To update plugins on purpose, use `:Lazy update` inside
+Neovim, then commit the changed lockfile back to this repo.
 
-```vim
-:Mason              " Check installation
-:LspInfo            " Check attachment
-:Lazy               " Reload lazy
+Since `~/.config/nvim` is a clone of this repo, a `git pull` also picks up changes to
+the config itself. Commit your edits from inside `~/.config/nvim`, never from a parent
+dotfiles repo that tracks it as a submodule.
+
+## Troubleshooting
+
+**`rg` or `fd` reported as "not installed" by `:checkhealth lazyvim`.**
+Apps launched from Finder or a dock icon don't inherit your shell `PATH`, so binaries
+in `/opt/homebrew/bin` or `/usr/local/bin` can be invisible. Confirm with
+`:echo $PATH` inside Neovim. The fix is to launch from a terminal, or export `PATH`
+in a login shell (`~/.zprofile` on macOS) so GUI apps pick it up. There is no lazy.nvim
+setting for this — `performance.rtp` only supports `disabled_plugins` and `paths`, not
+a whitelist.
+
+**Plugins didn't install.** Run `:Lazy sync` and read the output. Then
+`:checkhealth lazyvim` for the environment, `:checkhealth lazy` for the manager.
+
+**A plugin broke after an update.** Roll just the lockfile back to a known-good
+commit — this does not touch your config files:
+
+```sh
+cd ~/.config/nvim
+git log --oneline -- lazy-lock.json   # find a good commit
+git checkout <sha> -- lazy-lock.json
 ```
 
-### Slow startup?
+Then run `:Lazy sync` inside Neovim. `:Lazy restore` also rolls back to the lockfile.
 
-```vim
-:Lazy               " Find slow plugins
-:ProfileStart
-" Use Neovim normally
-:ProfileStop
-" Find profile in the shown file
-```
+**Starting over.**
 
-### Colors wrong?
-
-1. Ensure terminal has true color: `export TERM=xterm-256color`
-2. Check terminal supports 24-bit color
-3. Try Ghostty terminal
-
-### Keymap not working?
-
-```vim
-:verbose map <leader>xx    " Show what's mapped to this
-```
-
----
-
-## 📚 Learning Resources
-
-- [Neovim Docs](https://neovim.io/doc/)
-- [LazyVim](https://www.lazyvim.org/)
-- [Vim Tips Wiki](https://vim.fandom.com/wiki/Best_Vim_Tips)
-- [LSP Guide](https://neovim.io/doc/user/lsp.html)
-
----
-
-## 📦 Plugin Management
-
-```vim
-:Lazy update        " Update all plugins
-:Lazy sync          " Clean & update
-:Lazy check         " Check for updates
-:Lazy clear         " Clear cache
+```sh
+rm ~/.config/nvim                 # if it is a symlink, this only removes the link
+rm -rf ~/.local/share/nvim        # plugins, lockfile, Mason binaries
 ```
 
 ---
 
-## 🔄 Backup & Restore
+## Uninstall
 
-```bash
-# Backup
-cp -r ~/.config/nvim ~/.config/nvim.backup.$(date +%Y%m%d)
-
-# Restore
-rm -rf ~/.config/nvim && mv ~/.config/nvim.backup ~/.config/nvim
+```sh
+rm ~/.config/nvim
 ```
 
----
-
-## 📝 License
-
-Based on [LazyVim](https://www.lazyvim.org/). Check individual plugins for their licenses.
-
-## 🙏 Credits
-
-- [LazyVim](https://www.lazyvim.org/) - Base framework
-- [folke](https://github.com/folke) - Creator of LazyVim and plugins
-- [craftzdog](https://github.com/craftzdog) - Solarized Osaka & inspiration
-- [neovim](https://neovim.io/) - The best editor
-
----
-
-**Last Updated:** February 23, 2026  
-**Neovim:** v0.9.0+  
-**Status:** ✅ Fully Functional
-
-For issues or suggestions: [GitHub](https://github.com/naveen-93/nvim)
-
-
+To remove the plugins too, delete `~/.local/share/nvim`. Nothing outside those two
+locations is touched.
