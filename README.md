@@ -104,7 +104,7 @@ Almost nothing — the point of this section is so you know where to make change
 | `lua/config/lazy.lua` | Plugin manager setup, plus four Telescope keymaps at the bottom |
 | `lua/plugins/colorscheme.lua` | Loads solarized-osaka |
 | `lua/plugins/telescope.lua` | Ensures Telescope + plenary are present |
-| `lua/config/keymaps.lua` | **Empty** — add extra keymaps here |
+| `lua/config/keymaps.lua` | Save/quit shortcuts and the vertical-terminal helper |
 | `lua/config/autocmds.lua` | **Empty** — add autocmds here |
 | `lua/plugins/example.lua` | **Dead file.** Line 3 is `if true then return {} end`, so it always returns nothing. Only useful as a reference. |
 
@@ -132,6 +132,57 @@ nothing is lost — the snacks pickers for the same three actions live on differ
 
 Prefer snacks' pickers? Delete lines 55-58 of `lua/config/lazy.lua` and everything
 reverts to the LazyVim default.
+
+### The terminal keymaps
+
+`lua/config/keymaps.lua` defines an `open_vertical_terminal(command, cwd)` helper that
+splits the window to 45% width, starts `command` in a terminal buffer at `cwd`, and
+wires up cleanup — a buffer-local `<C-q>` closes it, and a `TermClose` autocmd removes
+the window if the process exits on its own.
+
+| Key | Action | Working directory |
+| --- | --- | --- |
+| `<leader>tv` | Vertical terminal running your `$SHELL` | current directory |
+| `<leader>tc` | Vertical terminal running `codex` | project root |
+| `<leader>ta` | Vertical terminal running `claude` | project root |
+
+Both AI tools are checked with `executable()` first, so pressing a key for a tool you
+haven't installed shows a notification instead of opening a dead terminal. `codex` is
+not on this machine, so `<leader>tc` currently reports that; `claude` is installed and
+`<leader>ta` works.
+
+`LazyVim.root()` is what resolves "project root" — it returns the nearest directory
+containing `.git`, falling back to the current directory.
+
+### Save and quit
+
+| Key | Action |
+| --- | --- |
+| `jk` (insert mode) | Exit insert mode |
+| `<leader>w` | Write file |
+| `<leader>wq` | Write and quit |
+| `<leader>q` | Quit |
+| `<leader>a` | Quit all |
+
+Two notes, because these override LazyVim's own defaults:
+
+- `<leader>q` normally runs `<cmd>confirm q<cr>`, which asks before discarding changes.
+  This config quits immediately. To get the confirmation back, change it to
+  `"<cmd>confirm q<cr>"`.
+- `<leader>a` is the prefix LazyVim reserves for its AI extras (`copilot-chat`,
+  `claudecode`, `sidekick`). No AI extra is enabled here, so `Quit All` works — but
+  enabling one of those extras later will collide with it.
+
+What the two overridden group prefixes do by default:
+
+- `<leader>q` is a which-key group for "quit/session". Its children — `<leader>qs`,
+  `<leader>qS`, `<leader>ql`, `<leader>qd` and `<leader>qq` — are unaffected and still
+  work; only the bare prefix now quits instead of opening the menu.
+- `<leader>w` is a which-key group for "windows". It did not have fixed sub-mappings:
+  LazyVim builds it dynamically from your currently open windows, and proxies the
+  prefix to `<c-w>`. Binding it to `:write` removes that window-picker menu. Window
+  navigation itself is untouched, because those live on the raw `<c-w>` keys —
+  `<C-h>`, `<C-j>`, `<C-k>` and `<C-l>` are still mapped to `<C-w>h/j/k/l`.
 
 ---
 
@@ -246,6 +297,14 @@ LSP has attached.
 | `<leader>ql` | Restore last session |
 | `<leader>qS` | Pick a session to restore |
 | `<leader>qd` | Do not save the current session |
+| `<leader>w` | Write file |
+| `<leader>wq` | Write and quit |
+| `<leader>q` | Quit |
+| `<leader>a` | Quit all |
+| `<leader>tv` | Vertical terminal (`$SHELL`, current directory) |
+| `<leader>ta` | Vertical terminal running `claude` (project root) |
+| `<leader>tc` | Vertical terminal running `codex` (project root) — needs `codex` installed |
+| `jk` (insert) | Exit insert mode |
 | `<leader><leader>` | Find files (root dir) — LazyVim maps double-tap leader here, not to which-key |
 
 Two things that are *not* mapped, despite being common in other setups:
